@@ -2,8 +2,9 @@
   "name": "@silent/laconic-apps-ui",
   "version": "0.1.0",
   "private": true,
-  "repository": "https://github.com/silentnoname/Laconic-Applications-UI",
-
+  "repository": "https://github.com/HighStakesSwitzerland/Laconic-Applications-UI",
+  "homepage": "appdirectory.pwa.highstakes.ch",
+  "authority": "@HighStakesSwitzerland/appdirectory",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
