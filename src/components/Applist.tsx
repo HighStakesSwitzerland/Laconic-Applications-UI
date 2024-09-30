@@ -1,9 +1,10 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { bech32 } from 'bech32';
 import Link from 'next/link';
-import { ChartBarIcon, UsersIcon, ClockIcon, CalendarIcon, MagnifyingGlassIcon, ArrowsUpDownIcon, LinkIcon } from '@heroicons/react/24/outline';
+import { ArrowsUpDownIcon, CalendarIcon, ChartBarIcon, ClockIcon, LinkIcon, MagnifyingGlassIcon, UsersIcon } from '@heroicons/react/24/outline';
+import Pagination from '@/components/Pagination';
 
 interface ApplicationRecord {
   id: string;
@@ -28,6 +29,8 @@ const AppList: React.FC = () => {
   const [sortOption, setSortOption] = useState<SortOption>('time');
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const appsPerPage = 9; // Number of apps per page
 
   useEffect(() => {
     const fetchApps = async () => {
@@ -140,15 +143,23 @@ const AppList: React.FC = () => {
     }).length
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
   const filteredAndSortedApps = apps
     .filter(app => {
       const name = app.attributes.find(attr => attr.key === 'name')?.value.string || '';
       const authority = getAuthority(app.names);
       const owner = hexToBech32(app.owners[0] || '');
       const searchLower = searchTerm.toLowerCase();
-      return name.toLowerCase().includes(searchLower) || 
-             authority.toLowerCase().includes(searchLower) ||
-             owner.toLowerCase().includes(searchLower);
+      return name.toLowerCase().includes(searchLower) ||
+        authority.toLowerCase().includes(searchLower) ||
+        owner.toLowerCase().includes(searchLower);
     })
     .sort((a, b) => {
       if (sortOption === 'time') {
@@ -168,6 +179,12 @@ const AppList: React.FC = () => {
       }
       return 0;
     });
+
+  const totalPages = Math.ceil(filteredAndSortedApps.length / appsPerPage);
+  const paginatedApps = filteredAndSortedApps.slice(
+    (currentPage - 1) * appsPerPage,
+    currentPage * appsPerPage
+  );
 
   if (isLoading) {
     return (
@@ -232,7 +249,7 @@ const AppList: React.FC = () => {
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredAndSortedApps.map((app) => (
+        {paginatedApps.map((app) => (
           <div key={app.id} className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition duration-300">
             <h2 className="text-xl font-bold mb-3 text-gray-800">{app.attributes.find(attr => attr.key === 'name')?.value.string || 'Unnamed App'}</h2>
             <div className="space-y-2 mb-4">
@@ -263,6 +280,11 @@ const AppList: React.FC = () => {
           </div>
         ))}
       </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 };
