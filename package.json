@@ -15,7 +15,7 @@
     "@heroicons/react": "^2.1.5",
     "axios": "^1.7.5",
     "bech32": "^2.0.0",
-    "next": "14.2.7",
+    "next": "14.2.10",
     "react": "^18",
     "react-dom": "^18"
   },
